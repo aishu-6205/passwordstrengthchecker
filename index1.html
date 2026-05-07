@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Password Strength Analyzer</title>
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .meter {
+            width: 300px;
+            height: 20px;
+            margin: 10px auto;
+            background: #ddd;
+            border-radius: 10px;
+        }
+
+        .bar {
+            height: 100%;
+            width: 0%;
+            border-radius: 10px;
+        }
+
+        .weak { background: red; width: 33%; }
+        .moderate { background: orange; width: 66%; }
+        .strong { background: green; width: 100%; }
+    </style>
+</head>
+<body>
+
+<h2>🔐 Password Strength Analyzer</h2>
+
+<input type="password" id="password" placeholder="Enter password">
+<br><br>
+<button onclick="checkStrength()">Check Strength</button>
+
+<h3 id="result"></h3>
+
+<div class="meter">
+    <div id="bar" class="bar"></div>
+</div>
+
+<div id="suggestions"></div>
+
+<div id="generated"></div>
+
+<script>
+function checkStrength() {
+    let pwd = document.getElementById("password").value;
+    let score = 0;
+    let feedback = [];
+
+    if (pwd.length >= 12) score += 2;
+    else if (pwd.length >= 8) score += 1;
+    else feedback.push("Use at least 8–12 characters");
+
+    if (/[A-Z]/.test(pwd)) score++;
+    else feedback.push("Add uppercase letters");
+
+    if (/[a-z]/.test(pwd)) score++;
+    else feedback.push("Add lowercase letters");
+
+    if (/[0-9]/.test(pwd)) score++;
+    else feedback.push("Include numbers");
+
+    if (/[!@#$%^&*]/.test(pwd)) score++;
+    else feedback.push("Include special characters");
+
+    if (/(.)\1\1/.test(pwd))
+        feedback.push("Avoid repeated characters");
+
+    if (/(1234|abcd|qwerty)/i.test(pwd))
+        feedback.push("Avoid predictable sequences");
+
+    let strength = "";
+    let bar = document.getElementById("bar");
+
+    if (score <= 2) {
+        strength = "Weak";
+        bar.className = "bar weak";
+    } else if (score <= 4) {
+        strength = "Moderate";
+        bar.className = "bar moderate";
+    } else {
+        strength = "Strong";
+        bar.className = "bar strong";
+    }
+
+    document.getElementById("result").innerText = "Strength: " + strength;
+
+    let sugHTML = "<h4>Suggestions:</h4><ul>";
+    feedback.forEach(f => sugHTML += "<li>" + f + "</li>");
+    sugHTML += "</ul>";
+    document.getElementById("suggestions").innerHTML = sugHTML;
+
+    
+    if (strength !== "Strong") {
+        let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+        let newPwd = "";
+        for (let i = 0; i < 12; i++) {
+            newPwd += chars[Math.floor(Math.random() * chars.length)];
+        }
+        document.getElementById("generated").innerHTML =
+            "<h4>Suggested Password:</h4>" + newPwd;
+    } else {
+        document.getElementById("generated").innerHTML = "";
+    }
+}
+</script>
+
+</body>
+</html>
